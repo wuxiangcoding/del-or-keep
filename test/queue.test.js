@@ -1,0 +1,171 @@
+import assert from "node:assert/strict";
+import test from "node:test";
+
+const DAY_MS = 24 * 60 * 60 * 1000;
+const NOW = Date.UTC(2026, 6, 6);
+
+let bookmarks;
+let storageState;
+let nextBookmarkId;
+let assignedUrl;
+
+function createBookmarkNode(overrides) {
+  return {
+    id: overrides.id,
+    parentId: overrides.parentId ?? "1",
+    index: overrides.index ?? 0,
+    title: overrides.title,
+    url: overrides.url,
+    dateAdded: overrides.dateAdded
+  };
+}
+
+function resetMocks() {
+  bookmarks = [
+    createBookmarkNode({
+      id: "old",
+      index: 0,
+      title: "Old link",
+      url: "https://old.example.com",
+      dateAdded: NOW - 45 * DAY_MS
+    }),
+    createBookmarkNode({
+      id: "fresh",
+      index: 1,
+      title: "Fresh link",
+      url: "https://fresh.example.com",
+      dateAdded: NOW - 2 * DAY_MS
+    })
+  ];
+  storageState = {};
+  nextBookmarkId = 100;
+  assignedUrl = null;
+}
+
+function installChromeMock() {
+  globalThis.window = {
+    location: {
+      assign(url) {
+        assignedUrl = url;
+      }
+    }
+  };
+
+  globalThis.chrome = {
+    bookmarks: {
+      async getTree() {
+        return [
+          {
+            id: "0",
+            children: [
+              {
+                id: "1",
+                title: "Bookmarks bar",
+                children: bookmarks.map((bookmark, index) => ({
+                  ...bookmark,
+                  index
+                }))
+              }
+            ]
+          }
+        ];
+      },
+      async remove(bookmarkId) {
+        const bookmarkIndex = bookmarks.findIndex((bookmark) => bookmark.id === bookmarkId);
+
+        if (bookmarkIndex === -1) {
+          throw new Error("Can't find bookmark");
+        }
+
+        bookmarks.splice(bookmarkIndex, 1);
+      },
+      async create(details) {
+        const bookmark = createBookmarkNode({
+          id: String(nextBookmarkId++),
+          parentId: details.parentId ?? "1",
+          index: typeof details.index === "number" ? details.index : bookmarks.length,
+          title: details.title,
+          url: details.url,
+          dateAdded: NOW
+        });
+
+        bookmarks.splice(bookmark.index, 0, bookmark);
+        return bookmark;
+      }
+    },
+    storage: {
+      local: {
+        async get(key) {
+          return { [key]: storageState[key] };
+        },
+        async set(value) {
+          storageState = {
+            ...storageState,
+            ...value
+          };
+        }
+      }
+    }
+  };
+}
+
+async function importQueueModule() {
+  return import(`../extension/src/services/queue.js?test=${Date.now()}-${Math.random()}`);
+}
+
+test.beforeEach(() => {
+  resetMocks();
+  installChromeMock();
+});
+
+test("only bookmarks older than the review threshold enter the queue", async () => {
+  const originalDateNow = Date.now;
+  Date.now = () => NOW;
+
+  try {
+    const { getNextBookmark, keepBookmark } = await importQueueModule();
+
+    const firstPayload = await getNextBookmark();
+    assert.equal(firstPayload.bookmark.id, "old");
+    assert.equal(firstPayload.stats.totalCount, 2);
+    assert.equal(firstPayload.stats.reviewableCount, 1);
+    assert.equal(firstPayload.stats.remainingCount, 1);
+
+    await keepBookmark("old");
+
+    const secondPayload = await getNextBookmark();
+    assert.equal(secondPayload.bookmark, null);
+    assert.equal(secondPayload.stats.reviewableCount, 1);
+    assert.equal(secondPayload.stats.remainingCount, 0);
+  } finally {
+    Date.now = originalDateNow;
+  }
+});
+
+test("deleted bookmarks can be restored to the original folder when possible", async () => {
+  const originalDateNow = Date.now;
+  Date.now = () => NOW;
+
+  try {
+    const { deleteBookmark, getNextBookmark, restoreDeletedBookmark } = await importQueueModule();
+    const payload = await getNextBookmark();
+
+    const deletedBookmark = await deleteBookmark(payload.bookmark);
+    assert.equal(deletedBookmark.id, "old");
+    assert.deepEqual(
+      bookmarks.map((bookmark) => bookmark.id),
+      ["fresh"]
+    );
+
+    const restoredBookmark = await restoreDeletedBookmark(deletedBookmark);
+    assert.equal(restoredBookmark.parentId, "1");
+    assert.equal(restoredBookmark.title, "Old link");
+    assert.equal(restoredBookmark.url, "https://old.example.com");
+    assert.deepEqual(
+      bookmarks.map((bookmark) => bookmark.title),
+      ["Old link", "Fresh link"]
+    );
+  } finally {
+    Date.now = originalDateNow;
+  }
+});

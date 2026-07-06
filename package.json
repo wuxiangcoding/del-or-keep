@@ -1,0 +1,12 @@
+{
+  "name": "del-or-keep",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node ./scripts/build-extension.mjs",
+    "extension:build": "node ./scripts/build-extension.mjs",
+    "test": "node --test test/*.test.js",
+    "verify": "pnpm test && pnpm build"
+  }
+}
