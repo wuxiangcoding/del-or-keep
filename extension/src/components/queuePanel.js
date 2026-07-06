@@ -28,7 +28,7 @@ export function createQueuePanel(queueData = {}) {
     ]),
     createElement("div", { className: "queue-panel__section" }, [
       createElement("p", { className: "panel-label", text: "Delete safety" }),
-      createElement("p", { className: "panel-copy", text: "Delete asks for confirmation first, then offers undo before you continue." })
+      createElement("p", { className: "panel-copy", text: "Delete asks for confirmation first, then keeps undo in the corner while you continue." })
     ])
   ]);
 }

@@ -8,6 +8,7 @@ let bookmarks;
 let storageState;
 let nextBookmarkId;
 let assignedUrl;
+let openedTabUrl;
 
 function createBookmarkNode(overrides) {
   return {
@@ -40,6 +41,7 @@ function resetMocks() {
   storageState = {};
   nextBookmarkId = 100;
   assignedUrl = null;
+  openedTabUrl = null;
 }
 
 function installChromeMock() {
@@ -48,6 +50,10 @@ function installChromeMock() {
       assign(url) {
         assignedUrl = url;
       }
+    },
+    open(url) {
+      assignedUrl = url;
+      return {};
     }
   };
 
@@ -93,6 +99,15 @@ function installChromeMock() {
         return bookmark;
       }
     },
+    tabs: {
+      async create(details) {
+        openedTabUrl = details.url;
+        return {
+          id: 1,
+          ...details
+        };
+      }
+    },
     storage: {
       local: {
         async get(key) {
@@ -116,6 +131,23 @@ async function importQueueModule() {
 test.beforeEach(() => {
   resetMocks();
   installChromeMock();
+});
+
+test("opened bookmarks launch in a new tab without replacing the current page", async () => {
+  const originalDateNow = Date.now;
+  Date.now = () => NOW;
+
+  try {
+    const { openBookmark } = await importQueueModule();
+
+    await openBookmark(bookmarks[0]);
+
+    assert.equal(openedTabUrl, "https://old.example.com");
+    assert.equal(assignedUrl, null);
+    assert.equal(storageState.delOrKeepState.reviewedById.old.status, "opened");
+  } finally {
+    Date.now = originalDateNow;
+  }
 });
 
 test("only bookmarks older than the review threshold enter the queue", async () => {

@@ -1,6 +1,8 @@
 import { createBookmarkCard } from "./components/bookmarkCard.js";
 import { createQueuePanel } from "./components/queuePanel.js";
 import { createLoadingCard, createStateCard } from "./components/stateCard.js";
+import { createUndoToast } from "./components/undoToast.js";
+import { applyDailyBackgroundImage } from "./services/backgroundImage.js";
 import { deleteBookmark, getNextBookmark, keepBookmark, openBookmark, restoreDeletedBookmark } from "./services/queue.js";
 import { createElement, replaceChildren } from "./utils/dom.js";
 
@@ -23,22 +25,26 @@ function createActionButton(label, variant, onClick) {
 
 function renderShell(content, queueData = currentPayload) {
   const workspaceChildren = queueData === null ? [content] : [content, createQueuePanel(queueData)];
-
-  replaceChildren(app, [
-    createElement("div", { className: "page-shell" }, [
-      createElement("header", { className: "topbar" }, [
-        createElement("div", { className: "brand-lockup" }, [
-          createElement("div", { className: "brand-mark", text: "D/K", attrs: { "aria-hidden": "true" } }),
-          createElement("div", {}, [
-            createElement("p", { className: "product-mark", text: "Del or Keep" }),
-            createElement("p", { className: "hero-copy", text: "Bookmark review queue" })
-          ])
-        ]),
-        createElement("div", { className: "review-badge", text: "30+ day filter" })
+  const shell = createElement("div", { className: "page-shell" }, [
+    createElement("header", { className: "topbar" }, [
+      createElement("div", { className: "brand-lockup" }, [
+        createElement("div", { className: "brand-mark", text: "D/K", attrs: { "aria-hidden": "true" } }),
+        createElement("div", {}, [
+          createElement("p", { className: "product-mark", text: "Del or Keep" }),
+          createElement("p", { className: "hero-copy", text: "Bookmark review queue" })
+        ])
       ]),
-      createElement("div", { className: `workspace${queueData === null ? " workspace--single" : ""}` }, workspaceChildren)
-    ])
+      createElement("div", { className: "review-badge", text: "30+ day filter" })
+    ]),
+    createElement("div", { className: `workspace${queueData === null ? " workspace--single" : ""}` }, workspaceChildren)
   ]);
+  const children = [shell];
+
+  if (lastDeletedBookmark) {
+    children.push(createUndoToast({ bookmark: lastDeletedBookmark, onUndo: handleUndoDelete }));
+  }
+
+  replaceChildren(app, children);
 }
 
 function renderLoading() {
@@ -94,41 +100,6 @@ function renderBookmark(payload) {
   );
 }
 
-function renderDeleted(bookmark) {
-  currentBookmark = null;
-  currentPayload = null;
-  isConfirmingDelete = false;
-
-  renderShell(
-    createStateCard({
-      variant: "deleted",
-      kicker: "Deleted",
-      title: "Bookmark removed",
-      body: `${bookmark.title || bookmark.url} was removed from Chrome bookmarks.`,
-      actions: [
-        createActionButton("Undo", "secondary", handleUndoDelete),
-        createActionButton("Next bookmark", "primary", handleNextAfterDelete)
-      ]
-    }),
-    null
-  );
-}
-
-function renderRestored(bookmark) {
-  lastDeletedBookmark = null;
-
-  renderShell(
-    createStateCard({
-      variant: "restored",
-      kicker: "Restored",
-      title: "Bookmark restored",
-      body: `${bookmark.title || bookmark.url} is back in Chrome bookmarks.`,
-      actions: [createActionButton("Next bookmark", "primary", loadNextBookmark)]
-    }),
-    null
-  );
-}
-
 async function loadNextBookmark() {
   if (isBusy) {
     return;
@@ -168,7 +139,11 @@ async function handleOpen() {
     console.error(error);
     renderError(error);
     isBusy = false;
+    return;
   }
+
+  isBusy = false;
+  await loadNextBookmark();
 }
 
 async function handleKeep() {
@@ -226,7 +201,7 @@ async function handleConfirmDelete() {
   }
 
   isBusy = false;
-  renderDeleted(lastDeletedBookmark);
+  await loadNextBookmark();
 }
 
 async function handleUndoDelete() {
@@ -237,23 +212,24 @@ async function handleUndoDelete() {
   isBusy = true;
 
   try {
-    const restoredBookmark = await restoreDeletedBookmark(lastDeletedBookmark);
-    renderRestored(restoredBookmark);
+    await restoreDeletedBookmark(lastDeletedBookmark);
+    lastDeletedBookmark = null;
   } catch (error) {
     console.error(error);
     renderError(error);
-  } finally {
     isBusy = false;
-  }
-}
-
-async function handleNextAfterDelete() {
-  if (isBusy) {
     return;
   }
 
-  lastDeletedBookmark = null;
+  isBusy = false;
+
+  if (currentBookmark && currentPayload?.bookmark) {
+    renderBookmark(currentPayload);
+    return;
+  }
+
   await loadNextBookmark();
 }
 
+applyDailyBackgroundImage();
 loadNextBookmark();

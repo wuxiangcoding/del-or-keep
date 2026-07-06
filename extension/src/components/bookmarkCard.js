@@ -36,7 +36,7 @@ function createDeleteConfirmation({ bookmark, onCancelDelete, onConfirmDelete })
     createElement("div", { className: "delete-confirmation__copy" }, [
       createElement("p", { className: "delete-confirmation__title", text: "Delete this bookmark?" }),
       createElement("p", {
-        text: `${getHostname(bookmark.url)} will be removed from Chrome bookmarks. You can undo on the next screen.`
+        text: `${getHostname(bookmark.url)} will be removed from Chrome bookmarks. Undo stays available while you continue.`
       })
     ]),
     createElement("div", { className: "delete-confirmation__actions" }, [
@@ -68,10 +68,11 @@ export function createBookmarkCard({
     createElement("h1", { className: "bookmark-title", text: bookmark.title || "Untitled bookmark" }),
     createElement("a", {
       className: "bookmark-url",
-      text: getHostname(bookmark.url),
+      text: bookmark.url,
       attrs: {
         href: bookmark.url,
-        title: bookmark.url
+        title: bookmark.url,
+        "aria-label": `Open ${bookmark.url} in a new tab`
       },
       events: {
         click: (event) => {

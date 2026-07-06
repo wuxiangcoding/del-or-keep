@@ -1,5 +1,6 @@
 :root {
   color-scheme: light;
+  --page-bg-image: none;
   --bg: #f3f5f0;
   --paper: #ffffff;
   --paper-muted: #fafbf7;
@@ -34,9 +35,26 @@ body {
   margin: 0;
   background-color: var(--bg);
   background-image:
+    linear-gradient(rgba(243, 245, 240, 0.84), rgba(243, 245, 240, 0.86)),
     linear-gradient(rgba(47, 102, 95, 0.045) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(47, 102, 95, 0.045) 1px, transparent 1px);
-  background-size: 28px 28px;
+    linear-gradient(90deg, rgba(47, 102, 95, 0.045) 1px, transparent 1px),
+    var(--page-bg-image);
+  background-position:
+    center,
+    top left,
+    top left,
+    center;
+  background-repeat:
+    no-repeat,
+    repeat,
+    repeat,
+    no-repeat;
+  background-size:
+    cover,
+    28px 28px,
+    28px 28px,
+    cover;
+  background-attachment: fixed;
   color: var(--ink);
   font-family: var(--font-sans);
 }
@@ -205,17 +223,16 @@ a:focus-visible {
 }
 
 .bookmark-url {
-  display: inline-flex;
+  display: block;
   max-width: 100%;
   margin-top: 18px;
   border-bottom: 1px solid transparent;
-  overflow: hidden;
   color: var(--muted);
   font-size: 18px;
   font-weight: 650;
+  line-height: 1.45;
   text-decoration: none;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  overflow-wrap: anywhere;
   transition:
     border-color 180ms ease,
     color 180ms ease;
@@ -346,23 +363,22 @@ a:focus-visible {
   gap: 16px;
   align-items: center;
   margin-top: 30px;
-  border: 1px solid rgba(183, 66, 61, 0.3);
-  border-left-width: 4px;
+  border: 1px solid var(--line);
   border-radius: 8px;
-  background: var(--danger-soft);
+  background: var(--paper-muted);
   padding: 16px;
 }
 
 .delete-confirmation__title {
   margin: 0;
-  color: var(--danger-strong);
+  color: var(--ink);
   font-weight: 800;
 }
 
 .delete-confirmation p:not(.delete-confirmation__title) {
   max-width: 54ch;
   margin: 6px 0 0;
-  color: #6f4b48;
+  color: var(--muted);
   font-size: 14px;
   line-height: 1.55;
 }
@@ -408,6 +424,59 @@ a:focus-visible {
   background:
     linear-gradient(0deg, rgba(228, 242, 231, 0.74), rgba(228, 242, 231, 0.74)),
     var(--paper);
+}
+
+.undo-toast {
+  position: fixed;
+  right: max(18px, env(safe-area-inset-right));
+  bottom: max(18px, env(safe-area-inset-bottom));
+  z-index: 20;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 14px;
+  align-items: center;
+  width: min(380px, calc(100vw - 28px));
+  border: 1px solid var(--line-strong);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 14px 36px rgba(38, 49, 42, 0.16);
+  padding: 12px 12px 12px 14px;
+}
+
+.undo-toast__title,
+.undo-toast__bookmark {
+  margin: 0;
+}
+
+.undo-toast__title {
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.undo-toast__bookmark {
+  margin-top: 3px;
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 650;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.undo-toast__action {
+  min-height: 38px;
+  border: 1px solid rgba(47, 102, 95, 0.32);
+  border-radius: 8px;
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+  cursor: pointer;
+  font-weight: 800;
+  padding: 0 13px;
+}
+
+.undo-toast__action:hover {
+  border-color: rgba(47, 102, 95, 0.52);
+  background: #d7e9e4;
 }
 
 .queue-panel {
@@ -599,6 +668,11 @@ a:focus-visible {
   .state-actions {
     display: grid;
     grid-template-columns: 1fr;
+  }
+
+  .undo-toast {
+    right: 14px;
+    bottom: 14px;
   }
 }
 

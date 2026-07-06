@@ -110,7 +110,7 @@ export async function getNextBookmark() {
 
 export async function openBookmark(bookmark) {
   await reviewBookmark(bookmark.id, "opened");
-  window.location.assign(bookmark.url);
+  await openUrlInNewTab(bookmark.url);
 }
 
 export async function keepBookmark(bookmarkId) {
@@ -151,4 +151,21 @@ async function reviewBookmark(bookmarkId, status) {
   const now = getNow();
 
   await updateState((state) => markReviewed(state, bookmarkId, status, now));
+}
+
+async function openUrlInNewTab(url) {
+  if (globalThis.chrome?.tabs?.create) {
+    try {
+      await chrome.tabs.create({ url, active: true });
+      return;
+    } catch (error) {
+      console.warn("Unable to open bookmark with chrome.tabs.create.", error);
+    }
+  }
+
+  const openedWindow = globalThis.window?.open?.(url, "_blank", "noopener,noreferrer");
+
+  if (!openedWindow) {
+    globalThis.window?.location?.assign(url);
+  }
 }

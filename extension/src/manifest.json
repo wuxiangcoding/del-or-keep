@@ -5,6 +5,7 @@
   "version": "0.1.0",
   "description": "Review one old bookmark every time you open a new tab.",
   "permissions": ["bookmarks", "storage"],
+  "host_permissions": ["https://www.bing.com/*"],
   "chrome_url_overrides": {
     "newtab": "newtab.html"
   },
