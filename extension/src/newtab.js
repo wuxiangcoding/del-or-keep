@@ -143,7 +143,7 @@ async function handleOpen() {
   }
 
   isBusy = false;
-  await loadNextBookmark();
+  renderBookmark(currentPayload);
 }
 
 async function handleKeep() {

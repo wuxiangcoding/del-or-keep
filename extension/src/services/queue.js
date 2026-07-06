@@ -109,7 +109,6 @@ export async function getNextBookmark() {
 }
 
 export async function openBookmark(bookmark) {
-  await reviewBookmark(bookmark.id, "opened");
   await openUrlInNewTab(bookmark.url);
 }
 

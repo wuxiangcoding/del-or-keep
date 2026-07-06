@@ -133,7 +133,7 @@ test.beforeEach(() => {
   installChromeMock();
 });
 
-test("opened bookmarks launch in a new tab without replacing the current page", async () => {
+test("opened bookmarks launch in a new tab without marking the item reviewed", async () => {
   const originalDateNow = Date.now;
   Date.now = () => NOW;
 
@@ -144,7 +144,7 @@ test("opened bookmarks launch in a new tab without replacing the current page", 
 
     assert.equal(openedTabUrl, "https://old.example.com");
     assert.equal(assignedUrl, null);
-    assert.equal(storageState.delOrKeepState.reviewedById.old.status, "opened");
+    assert.equal(storageState.delOrKeepState, undefined);
   } finally {
     Date.now = originalDateNow;
   }
