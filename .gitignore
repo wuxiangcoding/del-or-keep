@@ -1,2 +1,4 @@
 node_modules/
 .DS_Store
+releases/
+store/.asset-render/

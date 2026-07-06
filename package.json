@@ -3,9 +3,14 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
+  "packageManager": "pnpm@11.7.0",
   "scripts": {
     "build": "node ./scripts/build-extension.mjs",
     "extension:build": "node ./scripts/build-extension.mjs",
+    "extension:package": "node ./scripts/package-extension.mjs",
+    "store:assets": "node ./scripts/generate-store-assets.mjs",
+    "store:assets:validate": "node ./scripts/validate-store-assets.mjs",
+    "release:prepare": "pnpm verify && pnpm store:assets && pnpm store:assets:validate && pnpm extension:package",
     "test": "node --test test/*.test.js",
     "verify": "pnpm test && pnpm build"
   }
