@@ -31,8 +31,15 @@ function resetMocks() {
       dateAdded: NOW - 45 * DAY_MS
     }),
     createBookmarkNode({
-      id: "fresh",
+      id: "older",
       index: 1,
+      title: "Older link",
+      url: "https://older.example.com",
+      dateAdded: NOW - 40 * DAY_MS
+    }),
+    createBookmarkNode({
+      id: "fresh",
+      index: 2,
       title: "Fresh link",
       url: "https://fresh.example.com",
       dateAdded: NOW - 2 * DAY_MS
@@ -159,16 +166,39 @@ test("only bookmarks older than the review threshold enter the queue", async () 
 
     const firstPayload = await getNextBookmark();
     assert.equal(firstPayload.bookmark.id, "old");
-    assert.equal(firstPayload.stats.totalCount, 2);
-    assert.equal(firstPayload.stats.reviewableCount, 1);
-    assert.equal(firstPayload.stats.remainingCount, 1);
+    assert.equal(firstPayload.stats.totalCount, 3);
+    assert.equal(firstPayload.stats.reviewableCount, 2);
+    assert.equal(firstPayload.stats.remainingCount, 2);
 
     await keepBookmark("old");
 
     const secondPayload = await getNextBookmark();
-    assert.equal(secondPayload.bookmark, null);
-    assert.equal(secondPayload.stats.reviewableCount, 1);
-    assert.equal(secondPayload.stats.remainingCount, 0);
+    assert.equal(secondPayload.bookmark.id, "older");
+    assert.equal(secondPayload.stats.reviewableCount, 2);
+    assert.equal(secondPayload.stats.remainingCount, 1);
+  } finally {
+    Date.now = originalDateNow;
+  }
+});
+
+test("new tabs rotate to another unreviewed bookmark instead of repeating the same item", async () => {
+  const originalDateNow = Date.now;
+  let now = NOW;
+  Date.now = () => now;
+
+  try {
+    const { getNextBookmark } = await importQueueModule();
+
+    const firstPayload = await getNextBookmark();
+    assert.equal(firstPayload.bookmark.id, "old");
+
+    now += 1;
+    const secondPayload = await getNextBookmark();
+    assert.equal(secondPayload.bookmark.id, "older");
+
+    now += 1;
+    const thirdPayload = await getNextBookmark();
+    assert.equal(thirdPayload.bookmark.id, "old");
   } finally {
     Date.now = originalDateNow;
   }
@@ -186,7 +216,7 @@ test("deleted bookmarks can be restored to the original folder when possible", a
     assert.equal(deletedBookmark.id, "old");
     assert.deepEqual(
       bookmarks.map((bookmark) => bookmark.id),
-      ["fresh"]
+      ["older", "fresh"]
     );
 
     const restoredBookmark = await restoreDeletedBookmark(deletedBookmark);
@@ -195,7 +225,7 @@ test("deleted bookmarks can be restored to the original folder when possible", a
     assert.equal(restoredBookmark.url, "https://old.example.com");
     assert.deepEqual(
       bookmarks.map((bookmark) => bookmark.title),
-      ["Old link", "Fresh link"]
+      ["Old link", "Older link", "Fresh link"]
     );
   } finally {
     Date.now = originalDateNow;

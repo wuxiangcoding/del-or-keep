@@ -1,4 +1,4 @@
-const BING_IMAGE_API_URL = "https://www.bing.com/HPImageArchive.aspx?format=js&idx=0&n=1&mkt=en-US";
+const BING_IMAGE_API_URL = "https://www.bing.com/HPImageArchive.aspx?format=js&idx=0&n=8&mkt=en-US";
 const BING_BASE_URL = "https://www.bing.com";
 const BACKGROUND_REQUEST_TIMEOUT_MS = 2500;
 
@@ -8,6 +8,14 @@ function normalizeImageUrl(imageUrl) {
   }
 
   return new URL(imageUrl, BING_BASE_URL).href;
+}
+
+function pickRandomImage(images = []) {
+  if (!images.length) {
+    return null;
+  }
+
+  return images[Math.floor(Math.random() * images.length)];
 }
 
 function formatCssUrl(url) {
@@ -26,7 +34,7 @@ async function fetchBingDailyImage() {
     }
 
     const payload = await response.json();
-    return normalizeImageUrl(payload?.images?.[0]?.url);
+    return normalizeImageUrl(pickRandomImage(payload?.images)?.url);
   } finally {
     clearTimeout(timeoutId);
   }

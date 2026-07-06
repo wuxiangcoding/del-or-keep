@@ -72,6 +72,33 @@ function createStats(allBookmarks, reviewableBookmarks, state) {
   };
 }
 
+function compareNextBookmark(leftBookmark, rightBookmark, state) {
+  const leftShown = state.shownById[leftBookmark.id];
+  const rightShown = state.shownById[rightBookmark.id];
+
+  if (!leftShown && rightShown) {
+    return -1;
+  }
+
+  if (leftShown && !rightShown) {
+    return 1;
+  }
+
+  const lastShownDifference = (leftShown?.lastShownAt ?? 0) - (rightShown?.lastShownAt ?? 0);
+
+  if (lastShownDifference !== 0) {
+    return lastShownDifference;
+  }
+
+  return (leftShown?.shownCount ?? 0) - (rightShown?.shownCount ?? 0);
+}
+
+function getNextReviewableBookmark(reviewableBookmarks, state) {
+  return [...reviewableBookmarks]
+    .filter((bookmark) => !state.reviewedById[bookmark.id])
+    .sort((leftBookmark, rightBookmark) => compareNextBookmark(leftBookmark, rightBookmark, state))[0];
+}
+
 export async function getNextBookmark() {
   const now = getNow();
   const bookmarks = await getAllBookmarks();
@@ -82,7 +109,7 @@ export async function getNextBookmark() {
   state = expireIgnoredBookmarks(state, bookmarkIds, now);
   const stats = createStats(bookmarks, reviewableBookmarks, state);
 
-  const nextBookmark = reviewableBookmarks.find((bookmark) => !state.reviewedById[bookmark.id]);
+  const nextBookmark = getNextReviewableBookmark(reviewableBookmarks, state);
 
   if (!nextBookmark) {
     await saveState(state);
