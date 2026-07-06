@@ -72,31 +72,30 @@ function createStats(allBookmarks, reviewableBookmarks, state) {
   };
 }
 
-function compareNextBookmark(leftBookmark, rightBookmark, state) {
-  const leftShown = state.shownById[leftBookmark.id];
-  const rightShown = state.shownById[rightBookmark.id];
-
-  if (!leftShown && rightShown) {
-    return -1;
+function pickRandomBookmark(bookmarks) {
+  if (!bookmarks.length) {
+    return null;
   }
 
-  if (leftShown && !rightShown) {
-    return 1;
-  }
-
-  const lastShownDifference = (leftShown?.lastShownAt ?? 0) - (rightShown?.lastShownAt ?? 0);
-
-  if (lastShownDifference !== 0) {
-    return lastShownDifference;
-  }
-
-  return (leftShown?.shownCount ?? 0) - (rightShown?.shownCount ?? 0);
+  return bookmarks[Math.floor(Math.random() * bookmarks.length)];
 }
 
 function getNextReviewableBookmark(reviewableBookmarks, state) {
-  return [...reviewableBookmarks]
-    .filter((bookmark) => !state.reviewedById[bookmark.id])
-    .sort((leftBookmark, rightBookmark) => compareNextBookmark(leftBookmark, rightBookmark, state))[0];
+  const candidates = reviewableBookmarks.filter((bookmark) => !state.reviewedById[bookmark.id]);
+  const unshownCandidates = candidates.filter((bookmark) => !state.shownById[bookmark.id]);
+
+  if (unshownCandidates.length) {
+    return pickRandomBookmark(unshownCandidates);
+  }
+
+  if (candidates.length < 2) {
+    return candidates[0] ?? null;
+  }
+
+  const latestShownAt = Math.max(...candidates.map((bookmark) => state.shownById[bookmark.id]?.lastShownAt ?? 0));
+  const notJustShownCandidates = candidates.filter((bookmark) => (state.shownById[bookmark.id]?.lastShownAt ?? 0) < latestShownAt);
+
+  return pickRandomBookmark(notJustShownCandidates.length ? notJustShownCandidates : candidates);
 }
 
 export async function getNextBookmark() {

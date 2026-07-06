@@ -159,7 +159,9 @@ test("opened bookmarks launch in a new tab without marking the item reviewed", a
 
 test("only bookmarks older than the review threshold enter the queue", async () => {
   const originalDateNow = Date.now;
+  const originalMathRandom = Math.random;
   Date.now = () => NOW;
+  Math.random = () => 0;
 
   try {
     const { getNextBookmark, keepBookmark } = await importQueueModule();
@@ -178,13 +180,16 @@ test("only bookmarks older than the review threshold enter the queue", async () 
     assert.equal(secondPayload.stats.remainingCount, 1);
   } finally {
     Date.now = originalDateNow;
+    Math.random = originalMathRandom;
   }
 });
 
 test("new tabs rotate to another unreviewed bookmark instead of repeating the same item", async () => {
   const originalDateNow = Date.now;
+  const originalMathRandom = Math.random;
   let now = NOW;
   Date.now = () => now;
+  Math.random = () => 0;
 
   try {
     const { getNextBookmark } = await importQueueModule();
@@ -201,12 +206,32 @@ test("new tabs rotate to another unreviewed bookmark instead of repeating the sa
     assert.equal(thirdPayload.bookmark.id, "old");
   } finally {
     Date.now = originalDateNow;
+    Math.random = originalMathRandom;
+  }
+});
+
+test("new tabs can choose an unshown bookmark randomly instead of oldest first", async () => {
+  const originalDateNow = Date.now;
+  const originalMathRandom = Math.random;
+  Date.now = () => NOW;
+  Math.random = () => 0.99;
+
+  try {
+    const { getNextBookmark } = await importQueueModule();
+
+    const payload = await getNextBookmark();
+    assert.equal(payload.bookmark.id, "older");
+  } finally {
+    Date.now = originalDateNow;
+    Math.random = originalMathRandom;
   }
 });
 
 test("deleted bookmarks can be restored to the original folder when possible", async () => {
   const originalDateNow = Date.now;
+  const originalMathRandom = Math.random;
   Date.now = () => NOW;
+  Math.random = () => 0;
 
   try {
     const { deleteBookmark, getNextBookmark, restoreDeletedBookmark } = await importQueueModule();
@@ -229,5 +254,6 @@ test("deleted bookmarks can be restored to the original folder when possible", a
     );
   } finally {
     Date.now = originalDateNow;
+    Math.random = originalMathRandom;
   }
 });
