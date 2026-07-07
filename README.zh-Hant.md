@@ -4,6 +4,8 @@
 
 Del or Keep 是一個 Manifest V3 Chrome 擴充功能，會把新分頁變成輕量的書籤整理佇列。它每次顯示一個至少 30 天前儲存的書籤，讓使用者可以開啟、保留，或在確認後刪除，並支援復原最近一次刪除。
 
+![Del or Keep 正在檢視一個舊書籤](docs/review-queue.png)
+
 ## 功能
 
 - 每次在 Chrome 新分頁中檢視一個舊書籤。

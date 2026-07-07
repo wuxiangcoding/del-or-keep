@@ -4,6 +4,8 @@ Language: English | [繁體中文](README.zh-Hant.md)
 
 Del or Keep is a Manifest V3 Chrome extension that turns the new tab page into a lightweight bookmark review queue. It shows one bookmark saved at least 30 days ago and lets the user open, keep, or delete it with confirmation and undo.
 
+![Del or Keep reviewing an old bookmark](docs/review-queue.png)
+
 ## Features
 
 - Reviews one old bookmark at a time from the Chrome new tab page.
