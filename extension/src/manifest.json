@@ -1,0 +1,17 @@
+{
+  "manifest_version": 3,
+  "name": "Del or Keep",
+  "short_name": "Del or Keep",
+  "version": "0.1.0",
+  "description": "Review one old bookmark every time you open a new tab.",
+  "permissions": ["bookmarks", "storage"],
+  "host_permissions": ["https://www.bing.com/*"],
+  "chrome_url_overrides": {
+    "newtab": "newtab.html"
+  },
+  "icons": {
+    "16": "assets/icon-16.png",
+    "48": "assets/icon-48.png",
+    "128": "assets/icon-128.png"
+  }
+}
