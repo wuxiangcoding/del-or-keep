@@ -10,6 +10,18 @@ Del or Keep is a Manifest V3 Chrome extension that turns the new tab page into a
 - Keeps review state local in Chrome extension storage.
 - Uses the Bing daily image endpoint only for the new tab background.
 
+## Install From GitHub Releases
+
+Del or Keep is not yet available from the Chrome Web Store. Until the store listing is available, install the GitHub release as an unpacked extension:
+
+1. Download `del-or-keep-<version>.zip` from the latest GitHub Release.
+2. Unzip the archive and keep the extracted folder in a stable location.
+3. Open `chrome://extensions`.
+4. Enable Developer mode.
+5. Click Load unpacked and select the extracted folder.
+
+Chrome loads unpacked extensions from the selected folder, so do not delete the extracted folder while using the extension.
+
 ## Development
 
 ```sh
