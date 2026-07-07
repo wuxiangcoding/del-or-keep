@@ -25,17 +25,21 @@ This data is used only to:
 - Delete a bookmark when the user confirms deletion.
 - Restore a recently deleted bookmark when the user chooses undo.
 
+Del or Keep also requests Bing homepage image metadata and image assets to show a daily background on the new tab page.
+
 ## Storage and Transfer
 
 Del or Keep stores review metadata in `chrome.storage.local` on the user's device.
 
 Del or Keep does not send bookmark data, review metadata, or any other user data to the developer or to third-party servers.
 
-Del or Keep does not use analytics, advertising SDKs, accounts, remote code, or external network host permissions.
+The extension requests Bing homepage image metadata and image assets from `https://www.bing.com/*` for the new tab background. Bookmark titles, bookmark URLs, bookmark folder information, and review metadata are not included in that request. Microsoft/Bing may receive ordinary web request metadata such as IP address, user agent, and request time.
+
+Del or Keep does not use analytics, advertising SDKs, accounts, or remote code.
 
 ## Data Sharing
 
-Del or Keep does not sell, rent, share, or transfer user data.
+Del or Keep does not sell, rent, share, or transfer bookmark data or review metadata.
 
 Information received from Chrome APIs is used only for the extension's single purpose and in accordance with the Chrome Web Store User Data Policy, including the Limited Use requirements.
 

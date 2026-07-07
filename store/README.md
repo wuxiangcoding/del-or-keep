@@ -46,7 +46,7 @@ Use `store/demo-video-script.md` if you decide to add the optional YouTube demo 
 - Choose the final support URL and publisher contact email.
 - Upload `releases/del-or-keep-0.1.0.zip`.
 - Upload the screenshots and promotional tiles.
-- Complete the privacy questionnaire consistently with the local-only bookmark handling described in `store/privacy-policy.md`.
+- Complete the privacy questionnaire consistently with the local bookmark handling and Bing background request described in `store/privacy-policy.md`.
 - Submit for review.
 
 Official references:

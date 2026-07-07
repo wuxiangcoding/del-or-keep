@@ -37,6 +37,8 @@ The release zip is intentionally ignored by git because it is a generated upload
 
 ## Privacy Posture
 
-Bookmark titles, URLs, folder placement, and review state stay in Chrome APIs and `chrome.storage.local` on the user's device. The extension has no analytics, ads, accounts, remote code, or external network host permissions.
+Bookmark titles, URLs, folder placement, and review state stay in Chrome APIs and `chrome.storage.local` on the user's device. The extension has no analytics, ads, accounts, or remote code.
+
+The only external host permission is `https://www.bing.com/*`, used to fetch Bing homepage image metadata and image assets for the new tab background. Bookmark titles, URLs, folder placement, and review state are not sent to Bing.
 
 Before final submission, publish `store/privacy-policy.md` at a public URL and paste that URL into the Chrome Web Store privacy form.

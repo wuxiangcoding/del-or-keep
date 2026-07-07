@@ -2,6 +2,7 @@ import { createBookmarkCard } from "./components/bookmarkCard.js";
 import { createQueuePanel } from "./components/queuePanel.js";
 import { createLoadingCard, createStateCard } from "./components/stateCard.js";
 import { createUndoToast } from "./components/undoToast.js";
+import { applyDailyBackgroundImage } from "./services/backgroundImage.js";
 import { deleteBookmark, getNextBookmark, keepBookmark, openBookmark, restoreDeletedBookmark } from "./services/queue.js";
 import { createElement, replaceChildren } from "./utils/dom.js";
 
@@ -230,4 +231,5 @@ async function handleUndoDelete() {
   await loadNextBookmark();
 }
 
+applyDailyBackgroundImage();
 loadNextBookmark();

@@ -17,4 +17,4 @@ Target length: 35-45 seconds.
 
 ## Voiceover
 
-Del or Keep helps you clean up old Chrome bookmarks one new tab at a time. It only reviews bookmarks saved at least 30 days ago. Open before deciding, keep what still matters, or delete with confirmation and undo. Review state stays local in Chrome, with no account, analytics, ads, or external network permissions.
+Del or Keep helps you clean up old Chrome bookmarks one new tab at a time, with a daily Bing image as the new tab backdrop. It only reviews bookmarks saved at least 30 days ago. Open before deciding, keep what still matters, or delete with confirmation and undo. Review state stays local in Chrome, with no account, analytics, ads, or remote code.

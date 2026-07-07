@@ -14,11 +14,11 @@ Productivity
 
 ## Single Purpose
 
-Del or Keep helps users review and clean up old Chrome bookmarks from the new tab page.
+Del or Keep turns the Chrome new tab page into a focused old-bookmark review workspace.
 
 ## Detailed Description
 
-Del or Keep turns each new tab into a small bookmark cleanup decision.
+Del or Keep turns each new tab into a small bookmark cleanup decision, set against a daily Bing homepage image background.
 
 The extension picks one bookmark saved at least 30 days ago and shows its title, URL, age, seen count, and queue status. From there you can:
 
@@ -35,8 +35,8 @@ Privacy posture:
 - No ads.
 - No analytics.
 - No remote code.
-- No external network host permissions.
 - Bookmark review state stays in `chrome.storage.local`.
+- The only external request is to Bing for the daily new tab background image. Bookmark data is not sent with that request.
 
 ## Permission Justifications
 
@@ -44,9 +44,13 @@ Privacy posture:
 
 `storage`: Required to store local review state, including which bookmark IDs have been shown, kept, deleted, restored, or expired from the queue.
 
+`https://www.bing.com/*`: Required to request Bing homepage image metadata and image assets for the new tab background. This request is only for the visual background. Bookmark titles, URLs, folder placement, and review state are not sent to Bing, and the bookmark review queue still works if the image request fails.
+
 ## Privacy Questionnaire Notes
 
-Do not claim the extension has no user data just because the data stays local. The extension processes bookmark titles, URLs, folder placement, and bookmark timestamps on the user's device. The correct disclosure should make clear that this data is not sold, transferred, used for ads, used for creditworthiness, or sent to the developer or third-party servers.
+Do not claim the extension has no user data just because bookmark data stays local. The extension processes bookmark titles, URLs, folder placement, and bookmark timestamps on the user's device. The correct disclosure should make clear that this bookmark data is not sold, transferred, used for ads, used for creditworthiness, or sent to the developer or third-party servers.
+
+Also disclose the Bing background request separately: the extension requests Bing homepage image metadata and image assets to render the new tab background. No bookmark data or review metadata is included in that request.
 
 ## Suggested Support URL
 

@@ -57,6 +57,32 @@ function createScreenshotHtml(mode) {
       const dayMs = 24 * 60 * 60 * 1000;
       Date.now = () => now;
       Math.random = () => 0;
+      const wallpaperSvg = [
+        '<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1000" viewBox="0 0 1600 1000">',
+        '<defs>',
+        '<linearGradient id="sky" x1="0" x2="1" y1="0" y2="1"><stop offset="0" stop-color="#d7e7ec"/><stop offset="0.45" stop-color="#f4ead0"/><stop offset="1" stop-color="#9ec0b6"/></linearGradient>',
+        '<linearGradient id="ridge" x1="0" x2="1"><stop offset="0" stop-color="#3d6b63"/><stop offset="1" stop-color="#2a4d56"/></linearGradient>',
+        '</defs>',
+        '<rect width="1600" height="1000" fill="url(#sky)"/>',
+        '<circle cx="1190" cy="230" r="120" fill="#f8d48a" opacity="0.86"/>',
+        '<path d="M0 690 C220 570 360 600 530 520 C720 430 900 580 1080 500 C1260 420 1430 510 1600 450 L1600 1000 L0 1000 Z" fill="url(#ridge)" opacity="0.68"/>',
+        '<path d="M0 760 C250 650 480 710 700 620 C930 525 1110 690 1330 610 C1450 568 1530 560 1600 575 L1600 1000 L0 1000 Z" fill="#1f3e3d" opacity="0.38"/>',
+        '</svg>'
+      ].join("");
+      const wallpaperUrl = 'data:image/svg+xml,' + encodeURIComponent(wallpaperSvg);
+
+      window.fetch = async (url) => {
+        if (String(url).includes("HPImageArchive.aspx")) {
+          return {
+            ok: true,
+            async json() {
+              return { images: [{ url: wallpaperUrl }] };
+            }
+          };
+        }
+
+        throw new Error("Unexpected fetch request: " + url);
+      };
 
       const bookmarks = [
         {
