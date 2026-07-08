@@ -4,6 +4,8 @@
 
 Del or Keep 是一個 Manifest V3 Chrome 擴充功能，會把新分頁變成輕量的書籤整理佇列。它每次顯示一個至少 30 天前儲存的書籤，讓使用者可以開啟、保留，或在確認後刪除，並支援復原最近一次刪除。
 
+[![在 Chrome Web Store 下載](docs/chrome-web-store-badge.svg)](https://chromewebstore.google.com/detail/del-or-keep/eggcocipdbghmkgaammakmffefdobbgn)
+
 ![Del or Keep 正在檢視一個舊書籤](docs/review-queue.png)
 
 ## 功能
@@ -14,17 +16,13 @@ Del or Keep 是一個 Manifest V3 Chrome 擴充功能，會把新分頁變成輕
 - 書籤檢視狀態只保存在本機 Chrome 擴充功能儲存空間。
 - 只為了新分頁背景使用 Bing 每日圖片端點。
 
-## 從 GitHub Releases 安裝
+## 從 Chrome Web Store 安裝
 
-Del or Keep 目前尚未上架 Chrome Web Store。在商店頁面可用之前，可以先透過 GitHub Release 以未封裝擴充功能方式安裝：
+Del or Keep 已經上架 Chrome Web Store：
 
-1. 從最新的 GitHub Release 下載 `del-or-keep-<version>.zip`。
-2. 解壓縮檔案，並把解壓後的資料夾放在固定位置。
-3. 開啟 `chrome://extensions`。
-4. 啟用開發人員模式。
-5. 點選載入未封裝項目，並選擇解壓後的資料夾。
+<https://chromewebstore.google.com/detail/del-or-keep/eggcocipdbghmkgaammakmffefdobbgn>
 
-Chrome 會從選取的資料夾載入未封裝擴充功能，因此使用期間不要刪除該資料夾。
+點選上方徽章，或在 Chrome 中開啟商店頁面，然後選擇加入 Chrome。
 
 ## 開發
 

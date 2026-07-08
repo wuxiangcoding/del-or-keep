@@ -4,6 +4,8 @@ Language: English | [繁體中文](README.zh-Hant.md)
 
 Del or Keep is a Manifest V3 Chrome extension that turns the new tab page into a lightweight bookmark review queue. It shows one bookmark saved at least 30 days ago and lets the user open, keep, or delete it with confirmation and undo.
 
+[![Download on the Chrome Web Store](docs/chrome-web-store-badge.svg)](https://chromewebstore.google.com/detail/del-or-keep/eggcocipdbghmkgaammakmffefdobbgn)
+
 ![Del or Keep reviewing an old bookmark](docs/review-queue.png)
 
 ## Features
@@ -14,17 +16,13 @@ Del or Keep is a Manifest V3 Chrome extension that turns the new tab page into a
 - Keeps review state local in Chrome extension storage.
 - Uses the Bing daily image endpoint only for the new tab background.
 
-## Install From GitHub Releases
+## Install From Chrome Web Store
 
-Del or Keep is not yet available from the Chrome Web Store. Until the store listing is available, install the GitHub release as an unpacked extension:
+Del or Keep is available on the Chrome Web Store:
 
-1. Download `del-or-keep-<version>.zip` from the latest GitHub Release.
-2. Unzip the archive and keep the extracted folder in a stable location.
-3. Open `chrome://extensions`.
-4. Enable Developer mode.
-5. Click Load unpacked and select the extracted folder.
+<https://chromewebstore.google.com/detail/del-or-keep/eggcocipdbghmkgaammakmffefdobbgn>
 
-Chrome loads unpacked extensions from the selected folder, so do not delete the extracted folder while using the extension.
+Click the badge above or open the store listing in Chrome, then choose Add to Chrome.
 
 ## Development
 
