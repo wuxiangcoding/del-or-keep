@@ -1,5 +1,5 @@
 import { createElement } from "../utils/dom.js";
-import { formatBookmarkAge, formatDaysUntilExpiry, formatDuration } from "../utils/time.js";
+import { formatBookmarkAge, formatDuration } from "../utils/time.js";
 
 function getHostname(url) {
   try {
@@ -49,7 +49,6 @@ function createDeleteConfirmation({ bookmark, onCancelDelete, onConfirmDelete })
 export function createBookmarkCard({
   bookmark,
   shown,
-  expiryMs,
   minAgeMs,
   confirmDelete = false,
   onOpen,
@@ -84,7 +83,7 @@ export function createBookmarkCard({
     createElement("div", { className: "bookmark-meta" }, [
       createMetaItem("Age", formatBookmarkAge(bookmark.dateAdded)),
       createMetaItem("Seen", `${shown?.shownCount ?? 0} ${shown?.shownCount === 1 ? "time" : "times"}`),
-      createMetaItem("Expires", formatDaysUntilExpiry(shown?.firstShownAt, expiryMs).replace("Leaves this queue in ", ""))
+      createMetaItem("Status", "Waiting for your choice")
     ]),
     confirmDelete
       ? createDeleteConfirmation({ bookmark, onCancelDelete, onConfirmDelete })
