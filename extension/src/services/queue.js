@@ -3,7 +3,6 @@ import { getState, saveState, updateState } from "./storage.js";
 import { DAY_MS, getNow, isOlderThan } from "../utils/time.js";
 
 export const REVIEW_MIN_AGE_MS = 30 * DAY_MS;
-const EXPIRY_MS = 7 * DAY_MS;
 
 function isReviewableBookmark(bookmark, now) {
   if (typeof bookmark.dateAdded !== "number") {
@@ -42,33 +41,34 @@ function markShown(state, bookmarkId, now) {
   };
 }
 
-function expireIgnoredBookmarks(state, bookmarkIds, now) {
-  let nextState = state;
+function restoreAutoExpiredBookmarks(state) {
+  const expiredBookmarkIds = Object.entries(state.reviewedById)
+    .filter(([, review]) => review?.status === "expired")
+    .map(([bookmarkId]) => bookmarkId);
 
-  for (const bookmarkId of bookmarkIds) {
-    if (nextState.reviewedById[bookmarkId]) {
-      continue;
-    }
-
-    const shown = nextState.shownById[bookmarkId];
-    if (shown && isOlderThan(shown.firstShownAt, EXPIRY_MS, now)) {
-      nextState = markReviewed(nextState, bookmarkId, "expired", now);
-    }
+  if (!expiredBookmarkIds.length) {
+    return state;
   }
 
-  return nextState;
+  const reviewedById = { ...state.reviewedById };
+  for (const bookmarkId of expiredBookmarkIds) {
+    delete reviewedById[bookmarkId];
+  }
+
+  return {
+    ...state,
+    reviewedById
+  };
 }
 
 function createStats(allBookmarks, reviewableBookmarks, state) {
   const reviewedCount = reviewableBookmarks.filter((bookmark) => state.reviewedById[bookmark.id]).length;
-  const expiredCount = reviewableBookmarks.filter((bookmark) => state.reviewedById[bookmark.id]?.status === "expired").length;
 
   return {
     totalCount: allBookmarks.length,
     reviewableCount: reviewableBookmarks.length,
     reviewedCount,
-    remainingCount: reviewableBookmarks.length - reviewedCount,
-    expiredCount
+    remainingCount: reviewableBookmarks.length - reviewedCount
   };
 }
 
@@ -102,10 +102,7 @@ export async function getNextBookmark() {
   const now = getNow();
   const bookmarks = await getAllBookmarks();
   const reviewableBookmarks = bookmarks.filter((bookmark) => isReviewableBookmark(bookmark, now));
-  const bookmarkIds = reviewableBookmarks.map((bookmark) => bookmark.id);
-  let state = await getState();
-
-  state = expireIgnoredBookmarks(state, bookmarkIds, now);
+  let state = restoreAutoExpiredBookmarks(await getState());
   const stats = createStats(bookmarks, reviewableBookmarks, state);
 
   const nextBookmark = getNextReviewableBookmark(reviewableBookmarks, state);
@@ -116,7 +113,6 @@ export async function getNextBookmark() {
       bookmark: null,
       state,
       stats,
-      expiryMs: EXPIRY_MS,
       minAgeMs: REVIEW_MIN_AGE_MS
     };
   }
@@ -129,7 +125,6 @@ export async function getNextBookmark() {
     state,
     shown: state.shownById[nextBookmark.id],
     stats,
-    expiryMs: EXPIRY_MS,
     minAgeMs: REVIEW_MIN_AGE_MS
   };
 }

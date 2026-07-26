@@ -13,7 +13,7 @@ Del or Keep uses the Chrome Bookmarks API to process:
 - Bookmark folder IDs and positions.
 - Bookmark creation timestamps.
 
-Del or Keep also stores local review metadata, including whether a bookmark has been shown, kept, deleted, restored, or expired from the review queue.
+Del or Keep also stores local review metadata, including whether a bookmark has been shown, kept, deleted, or restored.
 
 ## How Data Is Used
 

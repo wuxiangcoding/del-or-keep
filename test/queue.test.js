@@ -210,6 +210,88 @@ test("new tabs rotate to another unreviewed bookmark instead of repeating the sa
   }
 });
 
+test("shown bookmarks remain unreviewed until the user keeps or deletes them", async () => {
+  const originalDateNow = Date.now;
+  const originalMathRandom = Math.random;
+  Date.now = () => NOW;
+  Math.random = () => 0;
+  storageState = {
+    delOrKeepState: {
+      version: 1,
+      reviewedById: {},
+      shownById: {
+        old: {
+          firstShownAt: NOW - 8 * DAY_MS,
+          lastShownAt: NOW - 8 * DAY_MS,
+          shownCount: 1
+        },
+        older: {
+          firstShownAt: NOW - 8 * DAY_MS,
+          lastShownAt: NOW - 8 * DAY_MS,
+          shownCount: 1
+        }
+      }
+    }
+  };
+
+  try {
+    const { getNextBookmark } = await importQueueModule();
+
+    const payload = await getNextBookmark();
+
+    assert.equal(payload.bookmark.id, "old");
+    assert.equal(payload.stats.reviewedCount, 0);
+    assert.equal(payload.stats.remainingCount, 2);
+  } finally {
+    Date.now = originalDateNow;
+    Math.random = originalMathRandom;
+  }
+});
+
+test("bookmarks previously auto-expired return to the unreviewed queue", async () => {
+  const originalDateNow = Date.now;
+  const originalMathRandom = Math.random;
+  Date.now = () => NOW;
+  Math.random = () => 0;
+  storageState = {
+    delOrKeepState: {
+      version: 1,
+      reviewedById: {
+        old: {
+          status: "expired",
+          reviewedAt: NOW - DAY_MS
+        },
+        older: {
+          status: "kept",
+          reviewedAt: NOW - DAY_MS
+        }
+      },
+      shownById: {
+        old: {
+          firstShownAt: NOW - 8 * DAY_MS,
+          lastShownAt: NOW - 8 * DAY_MS,
+          shownCount: 1
+        }
+      }
+    }
+  };
+
+  try {
+    const { getNextBookmark } = await importQueueModule();
+
+    const payload = await getNextBookmark();
+
+    assert.equal(payload.bookmark.id, "old");
+    assert.equal(payload.state.reviewedById.old, undefined);
+    assert.equal(payload.state.reviewedById.older.status, "kept");
+    assert.equal(payload.stats.reviewedCount, 1);
+    assert.equal(payload.stats.remainingCount, 1);
+  } finally {
+    Date.now = originalDateNow;
+    Math.random = originalMathRandom;
+  }
+});
+
 test("new tabs can choose an unshown bookmark randomly instead of oldest first", async () => {
   const originalDateNow = Date.now;
   const originalMathRandom = Math.random;

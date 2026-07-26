@@ -87,7 +87,6 @@ function renderBookmark(payload) {
     createBookmarkCard({
       bookmark: payload.bookmark,
       shown: payload.shown,
-      expiryMs: payload.expiryMs,
       minAgeMs: payload.minAgeMs,
       confirmDelete: isConfirmingDelete,
       onOpen: handleOpen,
